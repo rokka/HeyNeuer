@@ -1,0 +1,11 @@
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Globale Basis-Schriftgröße leicht anheben. Tailwind nutzt rem-basierte
+   Spacings & Schriftgrößen, daher wirkt das auf die gesamte UI. */
+html {
+    font-size: 17px;
+}

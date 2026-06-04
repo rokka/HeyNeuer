@@ -1,0 +1,81 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hey-alter-essen:latest
+    container_name: hey_alter_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8000}:80"
+    environment:
+      APP_NAME: "Hey, Alter! Essen"
+      APP_ENV: ${APP_ENV:-local}
+      APP_KEY: ${APP_KEY:-}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      APP_URL: ${APP_URL:-http://localhost:8000}
+      APP_LOCALE: de
+      APP_FALLBACK_LOCALE: en
+      APP_FAKER_LOCALE: de_DE
+      APP_TIMEZONE: Europe/Berlin
+
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-hey_alter_essen}
+      DB_USERNAME: ${DB_USERNAME:-hey_alter}
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+
+      MAIL_MAILER: ${MAIL_MAILER:-log}
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_SCHEME: ${MAIL_SCHEME:-null}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-noreply@example.com}
+      MAIL_FROM_NAME: "Hey, Alter! Essen"
+
+      INVITATION_EXPIRY_HOURS: ${INVITATION_EXPIRY_HOURS:-72}
+      SELF_REGISTRATION_TOKEN: ${SELF_REGISTRATION_TOKEN:-}
+
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@heyneuer.com}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-changeme!}
+    volumes:
+      # Persistente Storage-Daten (Logs, hochgeladene Dateien, etc.)
+      - app_storage:/var/www/html/storage
+
+  db:
+    image: mysql:8.0
+    container_name: hey_alter_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-hey_alter_essen}
+      MYSQL_USER: ${DB_USERNAME:-hey_alter}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-changeme}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootchangeme}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    # Port nur exponieren, falls man von ausserhalb des Compose-Netzwerks
+    # auf die DB zugreifen muss (z.B. mit DBeaver). Standardmaessig zu, weil
+    # interne Compose-Kommunikation ueber den Service-Namen 'db' laeuft.
+    # ports:
+    #   - "3306:3306"
+
+volumes:
+  db_data:
+    driver: local
+  app_storage:
+    driver: local

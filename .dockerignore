@@ -1,0 +1,49 @@
+# VCS
+.git
+.gitattributes
+.gitignore
+
+# Dependencies (im Image neu installiert)
+vendor
+node_modules
+
+# Build-Artefakte (werden im Image neu erzeugt)
+public/build
+public/hot
+
+# Lokale Daten
+storage/logs/*
+!storage/logs/.gitignore
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/framework/testing/*
+database/database.sqlite
+
+# Environment (sensibel, kommt via .env auf den Host)
+.env
+.env.*
+!.env.example
+
+# Editor / IDE
+.idea
+.vscode
+.fleet
+.phpstorm.meta.php
+_ide_helper*.php
+
+# Tests / CI
+.phpunit.cache
+.phpunit.result.cache
+
+# OS-Krempel
+.DS_Store
+Thumbs.db
+
+# Lokale Hilfsskripte aus Entwicklung
+probe_*.php
+seed_*.php
+verify*.php
+
+# Claude-Plan-Verzeichnis (lokal)
+.claude
