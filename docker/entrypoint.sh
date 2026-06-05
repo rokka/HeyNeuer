@@ -16,16 +16,28 @@ if [ -z "${APP_KEY:-}" ] || [ "${APP_KEY}" = "base64:" ]; then
     fi
 fi
 
-# 2) Auf MySQL warten (max. 60 Sekunden)
+# 2) Auf MySQL warten (max. 60 Sekunden). Wir nutzen PHP/PDO statt mysqladmin,
+#    weil der Debian-default-mysql-client (MariaDB) standardmäßig TLS erzwingt
+#    und am selbst-signierten MySQL-Zertifikat scheitert ("ERROR 2026: TLS/SSL
+#    error: self-signed certificate in certificate chain"). Der PDO-Treiber
+#    der App verwendet kein TLS by default — wenn der Ping hier klappt,
+#    klappt auch die App-Verbindung.
 if [ -n "${DB_HOST:-}" ]; then
     echo "[entrypoint] Warte auf MySQL bei ${DB_HOST}:${DB_PORT:-3306} ..."
     for i in $(seq 1 60); do
-        if mysqladmin ping \
-              -h "${DB_HOST}" \
-              -P "${DB_PORT:-3306}" \
-              -u "${DB_USERNAME:-root}" \
-              -p"${DB_PASSWORD:-}" \
-              --silent >/dev/null 2>&1; then
+        if php -r "
+            try {
+                new PDO(
+                    'mysql:host=' . getenv('DB_HOST') . ';port=' . (getenv('DB_PORT') ?: 3306),
+                    getenv('DB_USERNAME'),
+                    getenv('DB_PASSWORD'),
+                    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 2]
+                );
+                exit(0);
+            } catch (Throwable \$e) {
+                exit(1);
+            }
+        " >/dev/null 2>&1; then
             echo "[entrypoint] MySQL ist bereit."
             break
         fi
