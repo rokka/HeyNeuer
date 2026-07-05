@@ -45,14 +45,14 @@
                         Eingabe als <code class="bg-gray-100 px-1 rounded">HA-E-1234</code> oder nur als Zahl <code class="bg-gray-100 px-1 rounded">1234</code>.
                     </p>
                     <div class="flex gap-2">
-                        <x-text-input wire:model="computer_number_input" id="computer_number_input" type="text"
-                                      class="mt-1 block w-full font-mono" required autocomplete="off" placeholder="HA-E-1234" />
                         <button type="button" @click="open()"
                                 class="mt-1 inline-flex items-center px-3 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-md hover:bg-indigo-700 whitespace-nowrap"
                                 title="QR-Code scannen">
                             <i class="fas fa-qrcode mr-1" aria-hidden="true"></i>
                             Scannen
                         </button>
+                        <x-text-input wire:model="computer_number_input" id="computer_number_input" type="text"
+                                      class="mt-1 block w-full font-mono" required autocomplete="off" placeholder="HA-E-1234" />
                     </div>
                     <x-input-error :messages="$errors->get('computer_number_input')" class="mt-2" />
 
