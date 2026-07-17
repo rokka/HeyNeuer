@@ -85,6 +85,34 @@ class DistributionsCreateTest extends TestCase
         $this->assertSame($expectedHash, $distribution->recipient_hash);
     }
 
+    public function test_computer_cannot_be_distributed_twice(): void
+    {
+        $user     = User::factory()->create();
+        $computer = Computer::factory()->create();
+
+        // Erste Ausgabe — OK
+        Livewire::actingAs($user)
+            ->test(Create::class)
+            ->set('first_name', 'Anna')
+            ->set('last_name', 'Müller')
+            ->set('birthdate', '2010-04-12')
+            ->set('computer_number_input', $computer->number)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        // Zweite Ausgabe DESSELBEN Computers an andere Person — abgewiesen
+        Livewire::actingAs($user)
+            ->test(Create::class)
+            ->set('first_name', 'Bob')
+            ->set('last_name', 'Beispiel')
+            ->set('birthdate', '2009-11-30')
+            ->set('computer_number_input', $computer->number)
+            ->call('save')
+            ->assertHasErrors(['computer_number_input']);
+
+        $this->assertSame(1, Distribution::count());
+    }
+
     public function test_successful_distribution_marks_computer_as_delivered(): void
     {
         $user     = User::factory()->create();

@@ -58,20 +58,26 @@ class Create extends Component
             return;
         }
 
-        // 2) Hash bilden
+        // 2) Computer darf noch nicht ausgegeben worden sein
+        if (Distribution::where('computer_id', $computer->id)->exists()) {
+            $this->addError('computer_number_input', "Computer mit der Nummer {$number} wurde bereits ausgegeben.");
+            return;
+        }
+
+        // 3) Hash bilden
         $hash = Distribution::buildRecipientHash(
             $validated['first_name'],
             $validated['last_name'],
             $validated['birthdate']
         );
 
-        // 3) Duplikat-Check (gleiche Person darf nur einmal)
+        // 4) Duplikat-Check (gleiche Person darf nur einmal)
         if (Distribution::where('recipient_hash', $hash)->exists()) {
             $this->addError('recipient', 'Diese Person hat bereits einen Computer erhalten.');
             return;
         }
 
-        // 4) Anlegen — Klartextdaten werden NIE gespeichert
+        // 5) Anlegen — Klartextdaten werden NIE gespeichert
         Distribution::create([
             'computer_id'    => $computer->id,
             'user_id'        => Auth::id(),
