@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ComputerStatus;
 use App\Livewire\Distributions\Create;
 use App\Models\Computer;
 use App\Models\Distribution;
@@ -82,6 +83,23 @@ class DistributionsCreateTest extends TestCase
         $this->assertSame($computer->id, $distribution->computer_id);
         $this->assertSame($user->id, $distribution->user_id);
         $this->assertSame($expectedHash, $distribution->recipient_hash);
+    }
+
+    public function test_successful_distribution_marks_computer_as_delivered(): void
+    {
+        $user     = User::factory()->create();
+        $computer = Computer::factory()->create(['status' => ComputerStatus::Refurbished]);
+
+        Livewire::actingAs($user)
+            ->test(Create::class)
+            ->set('first_name', 'Anna')
+            ->set('last_name', 'Müller')
+            ->set('birthdate', '2010-04-12')
+            ->set('computer_number_input', $computer->number)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertSame(ComputerStatus::Delivered, $computer->fresh()->status);
     }
 
     public function test_user_can_create_distribution_with_digits_only(): void

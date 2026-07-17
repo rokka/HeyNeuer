@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Distributions;
 
+use App\Enums\ComputerStatus;
 use App\Models\Computer;
 use App\Models\Distribution;
 use Illuminate\Support\Facades\Auth;
@@ -77,6 +78,8 @@ class Create extends Component
             'distributed_at' => now(),
             'recipient_hash' => $hash,
         ]);
+
+        $computer->update(['status' => ComputerStatus::Delivered]);
 
         session()->flash('status', "Ausgabe von Computer {$number} wurde erfasst.");
 
