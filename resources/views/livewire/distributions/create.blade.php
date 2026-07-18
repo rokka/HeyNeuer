@@ -5,6 +5,8 @@
 <div class="py-6 sm:py-12">
     <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white shadow sm:rounded-lg p-6">
+            @include('livewire.distributions.tabs', ['active' => 'single'])
+
             <p class="text-sm text-gray-600 mb-4">
                 <i class="fas fa-shield-alt text-gray-400 mr-1" aria-hidden="true"></i>
                 Vor-/Nachname und Geburtsdatum werden <strong>nicht</strong> gespeichert.

@@ -43,8 +43,9 @@
                                     <span class="text-gray-400 italic">gelöscht</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-3 text-sm text-gray-700 max-w-xs truncate" title="{{ $d->computer?->comment }}">
-                                {{ $d->computer?->comment ?: '—' }}
+                            @php($comment = $d->comment ?: $d->computer?->comment)
+                            <td class="px-6 py-3 text-sm text-gray-700 max-w-xs truncate" title="{{ $comment }}">
+                                {{ $comment ?: '—' }}
                             </td>
                             <td class="px-6 py-3 whitespace-nowrap text-sm">{{ $d->distributed_at?->format('d.m.Y') }}</td>
                             <td class="px-6 py-3 whitespace-nowrap text-sm">
@@ -84,8 +85,9 @@
                                 @if ($d->computer)
                                     <p class="text-sm text-gray-800 truncate" title="{{ $d->computer->model }}">{{ $d->computer->model }}</p>
                                 @endif
-                                @if ($d->computer?->comment)
-                                    <p class="text-xs text-gray-600 mt-0.5 line-clamp-2">{{ $d->computer->comment }}</p>
+                                @php($comment = $d->comment ?: $d->computer?->comment)
+                                @if ($comment)
+                                    <p class="text-xs text-gray-600 mt-0.5 line-clamp-2">{{ $comment }}</p>
                                 @endif
                                 <p class="text-xs text-gray-500 mt-1">
                                     Abgegeben von: {{ $d->user?->name ?: ($d->user?->email ?? '(gelöscht)') }}

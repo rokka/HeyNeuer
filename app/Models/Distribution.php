@@ -15,6 +15,7 @@ class Distribution extends Model
         'user_id',
         'distributed_at',
         'recipient_hash',
+        'comment',
     ];
 
     protected function casts(): array

@@ -6,6 +6,7 @@ use App\Livewire\Computers\Form as ComputerForm;
 use App\Livewire\Computers\Index as ComputersIndex;
 use App\Livewire\Dashboard;
 use App\Livewire\Distributions\Create as DistributionsCreate;
+use App\Livewire\Distributions\CreateBulk as DistributionsCreateBulk;
 use App\Livewire\Distributions\Index as DistributionsIndex;
 use App\Livewire\Statistics\Matrix as StatisticsMatrix;
 use App\Livewire\Users\Edit as UserEdit;
@@ -32,6 +33,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('distributions', DistributionsIndex::class)->name('distributions.index');
     Route::get('distributions/create', DistributionsCreate::class)->name('distributions.create');
+    Route::get('distributions/create/bulk', DistributionsCreateBulk::class)->name('distributions.create.bulk');
 
     Route::get('statistics', StatisticsMatrix::class)->name('statistics.index');
 
