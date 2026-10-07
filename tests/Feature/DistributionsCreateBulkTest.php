@@ -131,6 +131,32 @@ class DistributionsCreateBulkTest extends TestCase
         $this->assertSame(ComputerStatus::Delivered, $c3->fresh()->status);
     }
 
+    public function test_save_writes_status_change_to_activity_log(): void
+    {
+        $user = User::factory()->create();
+        $c1   = Computer::factory()->create(['status' => ComputerStatus::Refurbished]);
+        $c2   = Computer::factory()->create(['status' => ComputerStatus::Picked]);
+
+        Livewire::actingAs($user)
+            ->test(CreateBulk::class)
+            ->set('numbers', [$c1->number, $c2->number])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        foreach ([$c1, $c2] as $computer) {
+            $activity = $computer->activitiesAsSubject()->where('event', 'updated')->latest('id')->first();
+
+            $this->assertNotNull($activity, "Keine Historie für Computer {$computer->number} geschrieben.");
+            $this->assertSame(ComputerStatus::Delivered->value, $activity->attribute_changes['attributes']['status']);
+            $this->assertSame($user->id, $activity->causer_id);
+        }
+
+        $this->assertSame(
+            'Status von „Aufbereitet“ auf „Ausgeliefert“ geändert',
+            Computer::activityDescription($c1->activitiesAsSubject()->where('event', 'updated')->latest('id')->first())
+        );
+    }
+
     public function test_save_creates_distribution_rows_with_null_hash(): void
     {
         $user = User::factory()->create();

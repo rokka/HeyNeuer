@@ -83,10 +83,12 @@ class CreateBulk extends Component
                     'recipient_hash' => null,
                     'comment'        => $comment,
                 ]);
-            }
 
-            Computer::whereIn('id', $computers->pluck('id'))
-                ->update(['status' => ComputerStatus::Delivered->value]);
+                // Bewusst pro Model speichern statt Massenupdate: nur so
+                // greifen die Eloquent-Events und die Statusänderung landet
+                // in der Historie (Activity-Log).
+                $computer->update(['status' => ComputerStatus::Delivered]);
+            }
         });
 
         $count = $computers->count();

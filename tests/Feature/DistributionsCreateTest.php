@@ -130,6 +130,32 @@ class DistributionsCreateTest extends TestCase
         $this->assertSame(ComputerStatus::Delivered, $computer->fresh()->status);
     }
 
+    public function test_successful_distribution_writes_status_change_to_activity_log(): void
+    {
+        $user     = User::factory()->create();
+        $computer = Computer::factory()->create(['status' => ComputerStatus::Refurbished]);
+
+        Livewire::actingAs($user)
+            ->test(Create::class)
+            ->set('first_name', 'Anna')
+            ->set('last_name', 'Müller')
+            ->set('birthdate', '2010-04-12')
+            ->set('computer_number_input', $computer->number)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $activity = $computer->activitiesAsSubject()->where('event', 'updated')->latest('id')->first();
+
+        $this->assertNotNull($activity, 'Keine Historie für die Statusänderung geschrieben.');
+        $this->assertSame(ComputerStatus::Delivered->value, $activity->attribute_changes['attributes']['status']);
+        $this->assertSame(ComputerStatus::Refurbished->value, $activity->attribute_changes['old']['status']);
+        $this->assertSame($user->id, $activity->causer_id);
+        $this->assertSame(
+            'Status von „Aufbereitet“ auf „Ausgeliefert“ geändert',
+            Computer::activityDescription($activity)
+        );
+    }
+
     public function test_user_can_create_distribution_with_digits_only(): void
     {
         $user     = User::factory()->create();
