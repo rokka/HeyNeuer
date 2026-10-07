@@ -42,6 +42,7 @@ class Form extends Component
                 'disk_type'    => $computer->disk_type->value,
                 'disk_gb'      => $computer->disk_gb,
             ]);
+            $this->applyQueryDefaults(request(), setStatus: false);
             return;
         }
 
@@ -59,8 +60,13 @@ class Form extends Component
      * - type_name: "desktop" | "laptop"
      * - hard_drive_type: "1" = HDD, "2" = SSD
      * - Sobald irgendein bekannter Parameter gesetzt ist → Status = "Aufbereitet"
+     *   (nur beim Neuanlegen)
+     *
+     * Dieselben Parameter funktionieren auch beim Bearbeiten
+     * (/computers/HA-E-4196/edit?cpu=...) und überschreiben dort nur die
+     * übergebenen Felder im Formular; gespeichert wird erst per Button.
      */
-    protected function applyQueryDefaults(\Illuminate\Http\Request $request): void
+    protected function applyQueryDefaults(\Illuminate\Http\Request $request, bool $setStatus = true): void
     {
         $knownKeys = ['model', 'cpu', 'type_name', 'memory_in_gb', 'hard_drive_type', 'hard_drive_space_in_gb'];
         $hasAny = collect($knownKeys)->contains(fn ($k) => $request->filled($k));
@@ -106,7 +112,9 @@ class Form extends Component
         }
 
         // Wer per externem Link kommt, hat das Gerät bereits aufbereitet
-        $this->status = ComputerStatus::Refurbished->value;
+        if ($setStatus) {
+            $this->status = ComputerStatus::Refurbished->value;
+        }
     }
 
     public function rules(): array

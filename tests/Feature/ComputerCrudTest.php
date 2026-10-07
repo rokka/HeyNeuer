@@ -52,6 +52,24 @@ class ComputerCrudTest extends TestCase
         $this->actingAs($user)->get('/computers/HA-E-9999999/edit')->assertNotFound();
     }
 
+    public function test_edit_route_prefills_fields_from_query_without_changing_status(): void
+    {
+        $user = User::factory()->create();
+        $computer = Computer::factory()->create([
+            'cpu_model' => 'Old CPU',
+            'status'    => ComputerStatus::New,
+        ]);
+
+        Livewire::actingAs($user)
+            ->withQueryParams(['cpu' => 'Intel i7', 'memory_in_gb' => '16'])
+            ->test(Form::class, ['computer' => $computer])
+            ->assertSet('cpu_model', 'Intel i7')
+            ->assertSet('ram_gb', 16)
+            ->assertSet('status', ComputerStatus::New->value);
+
+        $this->assertSame('Old CPU', $computer->fresh()->cpu_model);
+    }
+
     public function test_authenticated_user_can_create_computer_with_auto_number(): void
     {
         $user = User::factory()->create();
