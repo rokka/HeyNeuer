@@ -50,6 +50,23 @@ class Computer extends Model
         return $this->hasMany(Distribution::class);
     }
 
+    /**
+     * Route-Binding über ID (/computers/12/edit) oder Computernummer
+     * (/computers/HA-E-4216/edit).
+     */
+    public function resolveRouteBinding($value, $field = null): ?self
+    {
+        if ($field !== null) {
+            return $this->where($field, $value)->first();
+        }
+
+        $value = (string) $value;
+
+        return ctype_digit($value)
+            ? $this->whereKey($value)->first()
+            : $this->where('number', $value)->first();
+    }
+
     protected static function booted(): void
     {
         static::creating(function (Computer $computer) {

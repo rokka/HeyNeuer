@@ -38,6 +38,20 @@ class ComputerCrudTest extends TestCase
             ->assertDontSee('Keine Computer gefunden');
     }
 
+    public function test_edit_route_resolves_by_id_and_by_number(): void
+    {
+        $user = User::factory()->create();
+        $computer = Computer::factory()->create(['model' => 'Route Test Laptop']);
+
+        $this->actingAs($user)->get('/computers/' . $computer->id . '/edit')
+            ->assertOk()->assertSee('Route Test Laptop');
+
+        $this->actingAs($user)->get('/computers/' . $computer->number . '/edit')
+            ->assertOk()->assertSee('Route Test Laptop');
+
+        $this->actingAs($user)->get('/computers/HA-E-9999999/edit')->assertNotFound();
+    }
+
     public function test_authenticated_user_can_create_computer_with_auto_number(): void
     {
         $user = User::factory()->create();
